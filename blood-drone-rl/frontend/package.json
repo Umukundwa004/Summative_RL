@@ -1,0 +1,18 @@
+{
+  "name": "blood-drone-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "3D viewer for the autonomous blood delivery drone",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

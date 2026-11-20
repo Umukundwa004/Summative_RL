@@ -1,0 +1,18 @@
+[
+  {
+    "id": "dqn",
+    "label": "DQN"
+  },
+  {
+    "id": "reinforce",
+    "label": "REINFORCE"
+  },
+  {
+    "id": "ppo",
+    "label": "PPO"
+  },
+  {
+    "id": "a2c",
+    "label": "A2C"
+  }
+]
