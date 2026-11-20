@@ -1,0 +1,27 @@
+
+[project]
+name = "blood-drone-rl"
+version = "0.2.0"
+description = "Reinforcement Learning for Autonomous Blood Delivery Drones"
+requires-python = ">=3.10"
+
+dependencies = [
+    "gymnasium>=1.0",
+    "torch>=2.2",
+    "numpy>=1.26",
+    "pygame>=2.5",
+    "matplotlib>=3.8",
+    "fastapi>=0.162.5",
+    "uvicorn[standard]>=0.54.0",
+    "torchrl>=0.15.0",
+    "tensordict>=0.15.6",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
