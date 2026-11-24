@@ -50,6 +50,13 @@ def draw_environment(screen, env, font, last_action=None, last_reward=0.0):
                 color = COLORS["charger"]
             pygame.draw.rect(screen, color, rect)
 
+            # Blue tint where it is raining (rain is local, not map-wide).
+            cell_rain = env.weather_at(cell)[1]
+            if cell_rain > 1.0:
+                shade = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+                shade.fill((59, 111, 201, int(min(cell_rain / 8, 1.0) * 150)))
+                screen.blit(shade, rect)
+
             if cell == env.hospital:
                 pygame.draw.rect(screen, (220, 38, 38), (rect.centerx - 3, rect.y + 12, 6, CELL - 26))
                 pygame.draw.rect(screen, (220, 38, 38), (rect.x + 12, rect.centery - 3, CELL - 26, 6))
