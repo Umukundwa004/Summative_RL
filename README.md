@@ -51,35 +51,24 @@ Train one algorithm directly: `uv run main.py --model ppo --frames 100000`
 
 ## The environment
 
-A 10 x 10 map. The drone starts at the blood bank, must collect the blood
-(action 4), fly to the hospital and deliver it (action 4), then return to the
-bank. A mission has at most 200 steps.
+A 10 x 10 map. The drone starts at the blood bank (0, 0), collects the blood, flies it to a hospital, recharges at the charging station (5, 5) and flies back to the bank. One episode is one full mission, with at most 300 steps. Towers, buildings, the hospital and the weather change in every episode.
 
-**Actions (7)**
+**Actions (9)**
 
 | ID | Action | Effect |
 |---|---|---|
 | 0-3 | Move north / south / east / west | one cell, uses battery |
-| 4 | Collect / Deliver | collect at the blood bank, deliver at the hospital |
-| 5 | Recharge | +25 battery, only at the charging station |
-| 6 | Wait | hold position, uses little battery, lets storms pass |
+| 4 | Collect / Deliver | collect at the bank, deliver at the hospital (on the ground only) |
+| 5 | Recharge | +25 battery, only at the charging station, on the ground |
+| 6 | Wait | hold position, uses a little battery |
+| 7 | Climb | go up one height level (0 to 3) |
+| 8 | Descend | go down one height level |
 
-**Observation (22 numbers, all scaled to 0-1)**
+Impossible actions are masked, so the agent never chooses them.
 
-| # | Feature | Source in the simulation |
-|---|---|---|
-| 1-2 | Drone x, y | current cell / 9 |
-| 3 | Battery | battery / 100, drops with every action |
-| 4 | Blood collected | 0 or 1 |
-| 5-7 | Distance to hospital, bank, charger | Manhattan distance / 18 |
-| 8 | Delivery urgency | distance to current target / steps left |
-| 9 | Time remaining | (200 - step) / 200 |
-| 10-11 | Wind, rain | weather in the drone's own cell (0-10) / 10 |
-| 12 | Package temperature | warms while carried, / 10 |
-| 13 | Package integrity | 100 minus damage, / 100 |
-| 14-17 | Tower to the north / south / east / west | 1 if the next cell is blocked |
-| 18 | Mission stage | 0 collect, 0.5 carry, 1 return |
-| 19-22 | Rain to the north / south / east / west | rain in the next cell / 10, shows where the storm is |
+**Observation (43 numbers, all scaled to 0-1)**
+
+The full list is in `environment/custom_env.py` (`get_observation`). It includes the drone position, battery, package state, distances, weather, the four neighbouring cells (tower heights and rain), the altitude, whether the drone is ready for a mission, the action mask (9 values) and the position of the current target.
 
 **Rewards**
 
@@ -87,34 +76,26 @@ bank. A mission has at most 200 steps.
 |---|---|
 | Blood collected | +15 |
 | Blood delivered | +100 |
-| Back at base after delivery | +15 |
-| Moving closer to the current target | +2 per cell |
-| Recharging at the station | +5 |
+| Back at the bank after recharging (mission complete) | +15 |
 | Every step | -0.1 |
-| Invalid action (off the map, wrong place to collect or recharge) | -3 |
-| Flying into a tower | -20 (third hit: crash, -100) |
-| Missing the deadline | -40 |
+| Progress toward the current target (potential-based) | about +1 per cell closer, -1 per cell further |
+| Invalid action | -3 |
+| Waiting | -0.5 |
+| Hitting a tower or building | -20 (third hit: crash, -100) |
+| Heavy rain outside a shelter (per step) | -2 |
+| Severe storm, not landed on a shelter (per step) | -10 |
 | Blood too warm | -60 |
 | Battery empty away from the charger | -100 |
+| Deadline (300 steps) | -40 |
 
-**Start state:** drone at the bank, battery 100, blood not collected, calm
-weather. **Terminal states:** mission complete, crash (3 tower hits), battery
-empty, blood spoiled, or the 200-step deadline.
+Recharging gives no reward on purpose. Otherwise the agent earned points by recharging again and again.
 
-Weather is local. The map has a calm base level, and one or two storm patches
-(about 5 cells wide) appear, drift and fade away. Rain and wind are strongest in
-the middle of a storm and are zero or low outside it, so the drone can wait for
-a storm to pass or fly around it. Wind and rain are simulation values on a 0-10
-scale that I chose; they are not real weather data. Above wind 6 the drone can
-be pushed in a random direction, and flying costs more battery in wind and rain.
-A move costs 1.5 + 0.25 x wind + 0.3 x rain battery, so a storm makes flying about
-three times as expensive. Waiting costs 0.4 battery and a small reward penalty every
-step, so the drone does not just hover, but waiting out a storm is still possible.
+**Weather** is local. Storms drift, grow and fade. Rain and wind are simulation values from 0 to 10, not real weather data.
 
 ## Training and hyperparameter experiments
 
 All four algorithms use the same environment, a network with two hidden layers
-of 64 units (ReLU), the same budget (100,000 environment steps by default) and
+of 64 units (ReLU), the same budget (300,000 environment steps by default in the training scripts) and
 the same evaluation episodes. Each file in `training/` contains everything it
 needs.
 
