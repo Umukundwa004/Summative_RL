@@ -1,12 +1,12 @@
 """
 Export missions from the trained models as JSON for the 3D viewer.
 
-Each model in models/<name>/<name>.pt flies one complete mission per seed.
+Each model in models/<name>/<name>.pt flies one complete mission.
 The missions are saved to frontend/public/episodes/.
 
 Examples:
-    python export_episode.py                          # all models, seeds 0-3
-    python export_episode.py --model dqn --seeds 4 5  # one model, seeds 4 and 5
+    python export_episode.py            # all models
+    python export_episode.py --model dqn  # one model
 """
 
 import argparse
@@ -121,31 +121,18 @@ def run_episode(act, seed=0):
     return {"summary": summary, "layout": layout, "frames": frames}
 
 
-def episode_path(name, seed, out_dir=OUT_DIR):
-    """Seed 0 keeps the plain name (dqn.json); other seeds get their own file."""
-    suffix = "" if seed == 0 else f"-seed-{seed}"
-    return out_dir / f"{name}{suffix}.json"
+def episode_path(name, out_dir=OUT_DIR):
+    """The file for one model's episode, for example dqn.json."""
+    return out_dir / f"{name}.json"
 
 
-def build_episode_index(out_dir=OUT_DIR):
-    """List every exported episode, in the order the viewer shows them."""
-    index = []
-    for name, label in MODELS.items():
-        seeds = []
-        if episode_path(name, 0, out_dir).exists():
-            seeds.append((0, name))
-        prefix = f"{name}-seed-"
-        for path in out_dir.glob(f"{prefix}*.json"):
-            try:
-                seeds.append((int(path.stem[len(prefix):]), path.stem))
-            except ValueError:
-                continue
-        for seed, episode_id in sorted(set(seeds)):
-            index.append({"id": episode_id, "label": f"{label} (seed {seed})"})
-    return index
+def build_episode_index():
+    """The models the viewer can show, in display order."""
+    return [{"id": name, "label": label} for name, label in MODELS.items()
+            if episode_path(name).exists()]
 
 
-def export(name, seeds):
+def export(name):
     try:
         act = load_policy(model_path(name))
     except Exception as error:
@@ -153,23 +140,21 @@ def export(name, seeds):
         return
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for seed in seeds:
-        episode = run_episode(act, seed)
-        episode_path(name, seed).write_text(json.dumps(episode), encoding="utf-8")
-        s = episode["summary"]
-        print(f"  {name:<10} seed={seed:<4} steps={s['steps']:<4} "
-              f"total reward={s['total_reward']:<8} rounds={s['rounds_done']} outcome={s['outcome']}")
+    episode = run_episode(act, seed=0)
+    episode_path(name).write_text(json.dumps(episode), encoding="utf-8")
+    s = episode["summary"]
+    print(f"  {name:<10} steps={s['steps']:<4} total reward={s['total_reward']:<8} "
+          f"rounds={s['rounds_done']} outcome={s['outcome']}")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Export missions for the 3D viewer")
     parser.add_argument("--model", choices=list(MODELS), default=None, help="one model (default: all)")
-    parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3], help="episode seeds")
     args = parser.parse_args()
 
     print(f"Writing to {OUT_DIR}")
     for name in [args.model] if args.model else list(MODELS):
-        export(name, list(dict.fromkeys(args.seeds)))
+        export(name)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "index.json").write_text(json.dumps(build_episode_index(), indent=2), encoding="utf-8")

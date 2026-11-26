@@ -114,7 +114,7 @@ class BloodDroneEnv(gym.Env):
         # Fixed places.
         self.bank = (0, 0)
         self.charger = (5, 5)
-        self.hospital_options = [(9, 9), (9, 0), (0, 9), (9, 5)]
+        self.hospital_options = [(9, 9), (9, 0)]
 
         # Battery and package.
         self.battery_capacity = 100.0

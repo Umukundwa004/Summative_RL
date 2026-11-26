@@ -74,7 +74,7 @@ async function boot() {
     select.appendChild(option);
   }
 
-  // ?episode=ppo-seed-1 opens one model/seed replay. Keep ?model=dqn compatible.
+  // ?model=dqn opens that model's episode.
   const params = new URLSearchParams(location.search);
   const wanted = params.get("episode") || params.get("model");
   const id = index.some((e) => e.id === wanted) ? wanted : index[0].id;

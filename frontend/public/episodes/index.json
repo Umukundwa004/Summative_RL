@@ -1,66 +1,18 @@
 [
   {
     "id": "dqn",
-    "label": "DQN (seed 0)"
-  },
-  {
-    "id": "dqn-seed-1",
-    "label": "DQN (seed 1)"
-  },
-  {
-    "id": "dqn-seed-2",
-    "label": "DQN (seed 2)"
-  },
-  {
-    "id": "dqn-seed-3",
-    "label": "DQN (seed 3)"
+    "label": "DQN"
   },
   {
     "id": "reinforce",
-    "label": "REINFORCE (seed 0)"
-  },
-  {
-    "id": "reinforce-seed-1",
-    "label": "REINFORCE (seed 1)"
-  },
-  {
-    "id": "reinforce-seed-2",
-    "label": "REINFORCE (seed 2)"
-  },
-  {
-    "id": "reinforce-seed-3",
-    "label": "REINFORCE (seed 3)"
+    "label": "REINFORCE"
   },
   {
     "id": "ppo",
-    "label": "PPO (seed 0)"
-  },
-  {
-    "id": "ppo-seed-1",
-    "label": "PPO (seed 1)"
-  },
-  {
-    "id": "ppo-seed-2",
-    "label": "PPO (seed 2)"
-  },
-  {
-    "id": "ppo-seed-3",
-    "label": "PPO (seed 3)"
+    "label": "PPO"
   },
   {
     "id": "a2c",
-    "label": "A2C (seed 0)"
-  },
-  {
-    "id": "a2c-seed-1",
-    "label": "A2C (seed 1)"
-  },
-  {
-    "id": "a2c-seed-2",
-    "label": "A2C (seed 2)"
-  },
-  {
-    "id": "a2c-seed-3",
-    "label": "A2C (seed 3)"
+    "label": "A2C"
   }
 ]
