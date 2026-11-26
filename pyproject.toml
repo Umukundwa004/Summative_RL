@@ -1,8 +1,8 @@
-
 [project]
 name = "blood-drone-rl"
 version = "0.2.0"
 description = "Reinforcement Learning for Autonomous Blood Delivery Drones"
+readme = "README.md"
 requires-python = ">=3.10"
 
 dependencies = [
@@ -11,16 +11,23 @@ dependencies = [
     "numpy>=1.26",
     "pygame>=2.5",
     "matplotlib>=3.8",
-    "fastapi>=0.162.5",
-    "uvicorn[standard]>=0.54.0",
     "torchrl>=0.15.0",
     "tensordict>=0.15.6",
 ]
 
+# Installed by `uv sync` by default: tests and the Jupyter kernel for the notebooks.
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "ipykernel>=6.29",
 ]
+
+[tool.uv]
+# This is an application, not a library: `uv sync` installs only its dependencies.
+package = false
+# Copy files from uv's cache instead of hard-linking them. Hard links fail in
+# some folders, for example OneDrive folders on Windows.
+link-mode = "copy"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
